@@ -37,37 +37,40 @@ const PurchasePlan: React.FC = () => {
     // Estado para variables configurables del usuario
     const [stockActual, setStockActual] = useState<number>(100);
     const [fuelSituation, setFuelSituation] = useState<number>(2); // 1=Normal, 2=Crítico, 3=Severo
-    const [selectedProduct, setSelectedProduct] = useState<string>(''); // Vacío = todos los productos
-    const [purchasePlanData, setPurchasePlanData] = useState<PurchasePlanEntry[]>(initialPurchasePlanData);
+    const [selectedProduct, setSelectedProduct] = useState<string>(''); // Vacío = no mostrar nada
+    const [purchasePlanData, setPurchasePlanData] = useState<PurchasePlanEntry[]>([]);
     const [statusMessage, setStatusMessage] = useState<string>(
-        !state ? "Cargue un escenario primero." : `Escenario aprobado: ${scenarioName.toUpperCase()}`
+        !state ? "Cargue un escenario primero." : `Escenario aprobado: ${scenarioName.toUpperCase()}. Selecciona un producto para ver el plan.`
     );
     const [isRecalculating, setIsRecalculating] = useState<boolean>(false);
 
     // Estado para mostrar datos iniciales antes del primer recálculo
-    const [showInitialData, setShowInitialData] = useState<boolean>(true);
+    const [showInitialData, setShowInitialData] = useState<boolean>(false);
 
     // Función para recalcular el plan automáticamente
     const recalculatePlan = useCallback(async () => {
+        if (!selectedProduct) return; // No recalcular si no hay producto seleccionado
+
         setIsRecalculating(true);
         setStatusMessage("🔄 Recalculando plan de compra...");
 
         try {
-            console.log(`📤 Recalculando plan con stock_actual=${stockActual}, situacion_combustible=${fuelSituation}`);
+            console.log(`📤 Recalculando plan para producto ${selectedProduct} con stock_actual=${stockActual}, situacion_combustible=${fuelSituation}`);
 
             // Preparar payload con las nuevas variables
-            // Usamos los datos originales de simulación que vienen del state
+            // Filtrar por producto seleccionado
+            const filteredData = initialPurchasePlanData.filter(item => item.PRODUCTO === selectedProduct);
+
             const recalculatePayload = {
-                stock_actual: stockActual,
+                stock_actual: stockActual, // Stock inicial para este producto
                 situacion_combustible: fuelSituation,
-                proyeccion_ventas: initialPurchasePlanData.map(item => ({
+                proyeccion_ventas: filteredData.map(item => ({
                     MES: item.MES,
                     PRODUCTO: item.PRODUCTO,
-                    DEMANDA_PROYECTADA: item.DEMANDA_PROYECTADA,
-                    // Los otros campos se obtendrían de los datos de simulación originales
-                    LEAD_TIME_DIAS: 7, // Valor por defecto, debería venir de simulación
-                    CANT_MIN_COMPRAS: 50, // Valor por defecto, debería venir de simulación
-                    PRECIO_DE_COMPRA: 100 // Valor por defecto, debería venir de simulación
+                    LEAD_TIME_DIAS: item.LEAD_TIME_DIAS || 7,
+                    CANT_MIN_COMPRAS: item.CANT_MIN_COMPRAS || 50,
+                    CANTIDAD_PROYECTADA_FINAL: item.CANTIDAD_PROYECTADA_FINAL || item.DEMANDA_PROYECTADA,
+                    PRECIO_DE_COMPRA: item.PRECIO_DE_COMPRA || 100
                 }))
             };
 
@@ -76,11 +79,13 @@ const PurchasePlan: React.FC = () => {
             console.log(`📥 Respuesta del recálculo recibida:`, {
                 status: response.status,
                 data: response.data,
-                totalRegistros: response.data.length
+                totalRegistros: response.data.length,
+                primerRegistro: response.data[0],
+                ultimoRegistro: response.data[response.data.length - 1]
             });
 
             setPurchasePlanData(response.data);
-            setStatusMessage(`✅ Plan recalculado con Stock: ${stockActual}, Combustible: ${fuelSituation}`);
+            setStatusMessage(`✅ Plan recalculado para ${selectedProduct} - Stock: ${stockActual}, Combustible: ${fuelSituation}`);
             setShowInitialData(false); // Ya no mostrar datos iniciales después del primer recálculo
 
         } catch (error: any) {
@@ -89,18 +94,18 @@ const PurchasePlan: React.FC = () => {
         } finally {
             setIsRecalculating(false);
         }
-    }, [stockActual, fuelSituation, initialPurchasePlanData]);
+    }, [stockActual, fuelSituation, initialPurchasePlanData, selectedProduct]);
 
-    // Efecto para recalcular automáticamente cuando cambian las variables
+    // Efecto para recalcular automáticamente cuando cambian las variables o el producto seleccionado
     useEffect(() => {
-        if (initialPurchasePlanData.length > 0 && !showInitialData) {
+        if (initialPurchasePlanData.length > 0 && selectedProduct && !showInitialData) {
             const timeoutId = setTimeout(() => {
                 recalculatePlan();
             }, 1000); // Esperar 1 segundo después del último cambio
 
             return () => clearTimeout(timeoutId);
         }
-    }, [stockActual, fuelSituation, recalculatePlan, initialPurchasePlanData.length, showInitialData]);
+    }, [stockActual, fuelSituation, selectedProduct, recalculatePlan, initialPurchasePlanData.length, showInitialData]);
 
     // Efecto para filtrar datos cuando cambia el producto seleccionado
     useEffect(() => {
@@ -139,10 +144,22 @@ const PurchasePlan: React.FC = () => {
                         <select
                             id="product-select"
                             value={selectedProduct}
-                            onChange={(e) => setSelectedProduct(e.target.value)}
+                            onChange={(e) => {
+                                const newProduct = e.target.value;
+                                setSelectedProduct(newProduct);
+                                if (newProduct) {
+                                    // Limpiar datos anteriores y recalcular para el nuevo producto
+                                    setPurchasePlanData([]);
+                                    setStatusMessage(`Seleccionado: ${newProduct}. Recalculando plan...`);
+                                    // El useEffect se encargará de recalcular
+                                } else {
+                                    setPurchasePlanData([]);
+                                    setStatusMessage(`Escenario aprobado: ${scenarioName.toUpperCase()}. Selecciona un producto para ver el plan.`);
+                                }
+                            }}
                             className="config-select"
                         >
-                            <option value="">Todos los productos</option>
+                            <option value="">Selecciona un producto...</option>
                             {AVAILABLE_PRODUCTS.map(product => (
                                 <option key={product} value={product}>
                                     {product}
@@ -173,9 +190,8 @@ const PurchasePlan: React.FC = () => {
                             disabled={isRecalculating}
                             className="config-select"
                         >
-                            <option value={1}>1 - Normal (Costos estándar)</option>
-                            <option value={2}>2 - Crítico (Costos elevados)</option>
-                            <option value={3}>3 - Severo (Costos muy elevados)</option>
+                            <option value={1}>1 - Normal (Lead time estándar)</option>
+                            <option value={2}>2 - Crítico (Lead time elevado)</option>
                         </select>
                     </div>
                 </div>

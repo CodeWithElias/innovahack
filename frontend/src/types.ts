@@ -56,4 +56,9 @@ export interface PurchasePlanEntry {
   STOCK_FINAL: number;
   AVISO: string;
   RECOMENDACION: string;
+  // Campos adicionales que pueden venir del backend
+  LEAD_TIME_DIAS?: number;
+  CANT_MIN_COMPRAS?: number;
+  CANTIDAD_PROYECTADA_FINAL?: number;
+  PRECIO_DE_COMPRA?: number;
 }

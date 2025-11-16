@@ -85,11 +85,19 @@ const Simulator = () => {
     const [statusMessage, setStatusMessage] = useState<string>("Listo para simular.");
     const [selectedProduct, setSelectedProduct] = useState<string>(AVAILABLE_PRODUCTS[0]);
 
-    // Estado para inputs por mes de cada escenario
+    // Función para generar valores aleatorios iniciales para un mes
+    const generateRandomMonthInputs = (): MonthInputs => ({
+        CLIMA: Math.floor(Math.random() * 3) + 1, // 1, 2, o 3
+        FERIA: Math.floor(Math.random() * 2), // 0 o 1
+        CAMBIO_PRECIO_PCT: Math.floor(Math.random() * 41) - 20, // -20 a +20
+        CRECIMIENTO_ORGANICO: Math.floor(Math.random() * 11), // 0 a 10
+    });
+
+    // Estado para inputs por mes de cada escenario (inicializados aleatoriamente)
     const [scenarioInputs, setScenarioInputs] = useState<ScenarioInputs>({
-        peor: INITIAL_MONTH_NUMBERS.map(() => ({ CLIMA: 3, FERIA: 0, CAMBIO_PRECIO_PCT: 10, CRECIMIENTO_ORGANICO: 0 })),
-        conservador: INITIAL_MONTH_NUMBERS.map(() => ({ CLIMA: 2, FERIA: 0, CAMBIO_PRECIO_PCT: 0, CRECIMIENTO_ORGANICO: 0 })),
-        mejor: INITIAL_MONTH_NUMBERS.map(() => ({ CLIMA: 1, FERIA: 1, CAMBIO_PRECIO_PCT: -10, CRECIMIENTO_ORGANICO: 5 })),
+        peor: INITIAL_MONTH_NUMBERS.map(() => generateRandomMonthInputs()),
+        conservador: INITIAL_MONTH_NUMBERS.map(() => generateRandomMonthInputs()),
+        mejor: INITIAL_MONTH_NUMBERS.map(() => generateRandomMonthInputs()),
     });
 
     const [selectedScenario, setSelectedScenario] = useState<ScenarioName>('conservador');
@@ -282,8 +290,8 @@ const Simulator = () => {
     
     // --- Renderizado y Gráficos ---
 
-    // Estado para alternar entre tipos de gráfico
-    const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
+    // Estado para alternar entre tipos de gráfico (líneas por defecto para mejor comprensión temporal)
+    const [chartType, setChartType] = useState<'bar' | 'line'>('line');
 
     const chartData = useMemo(() => {
         if (!results.conservador && !results.peor && !results.mejor) return { labels: MONTHS, datasets: [] };
@@ -624,6 +632,20 @@ const Simulator = () => {
                             </h3>
                             <div style={{ display: 'flex', gap: '0.5rem' }}>
                                 <button
+                                    onClick={() => setChartType('line')}
+                                    style={{
+                                        padding: '0.5rem 1rem',
+                                        backgroundColor: chartType === 'line' ? '#007bff' : '#f8f9fa',
+                                        color: chartType === 'line' ? 'white' : '#333',
+                                        border: '1px solid #dee2e6',
+                                        borderRadius: '0.25rem',
+                                        cursor: 'pointer',
+                                        fontSize: '0.875rem'
+                                    }}
+                                >
+                                    📈 Líneas (Recomendado)
+                                </button>
+                                <button
                                     onClick={() => setChartType('bar')}
                                     style={{
                                         padding: '0.5rem 1rem',
@@ -636,20 +658,6 @@ const Simulator = () => {
                                     }}
                                 >
                                     📊 Barras
-                                </button>
-                                <button
-                                    onClick={() => setChartType('line')}
-                                    style={{
-                                        padding: '0.5rem 1rem',
-                                        backgroundColor: chartType === 'line' ? '#007bff' : '#f8f9fa',
-                                        color: chartType === 'line' ? 'white' : '#333',
-                                        border: '1px solid #dee2e6',
-                                        borderRadius: '0.25rem',
-                                        cursor: 'pointer',
-                                        fontSize: '0.875rem'
-                                    }}
-                                >
-                                    📈 Líneas
                                 </button>
                             </div>
                         </div>
