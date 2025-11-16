@@ -6,7 +6,7 @@ import apiClient, { API_BASE_URL } from '../api/apiClient';
 import './Setup.css';
 
 const Setup: React.FC = () => {
-    const [statusMessage, setStatusMessage] = useState<string>("Inicia subiendo tu archivo de entrenamiento.");
+    const [statusMessage, setStatusMessage] = useState<string>("Cargue su archivo de datis (CSV) para iniciar la simulación.");
     const [file, setFile] = useState<File | null>(null);
     const navigate = useNavigate();
 
@@ -52,7 +52,7 @@ const Setup: React.FC = () => {
     
     return (
         <div className="setup-container">
-            <h2 className="setup-header">1. Setup y Entrenamiento del Modelo</h2>
+            <h2 className="setup-header">1.  Carga de datos y configuración inicial</h2>
 
             <div className="status-box">
                 {statusMessage.includes("Cargando") && <span className="spinner">⚙️</span>}
@@ -71,7 +71,7 @@ const Setup: React.FC = () => {
                     disabled={!file || statusMessage.includes("Cargando")}
                     className="btn-train"
                 >
-                    Entrenar IA
+                    Generar
                 </button>
             </div>
 
