@@ -1,4 +1,3 @@
-// src/components/Setup.tsx
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -17,10 +16,9 @@ const Setup: React.FC = () => {
         }
     };
     
-    // Función de Entrenamiento (POST /api/upload/ y POST /api/train/)
     const handleTrainModel = async () => {
         if (!file) {
-            setStatusMessage("❌ Error: Selecciona un archivo CSV primero.");
+            setStatusMessage("Error: Selecciona un archivo CSV primero.");
             return;
         }
         
@@ -29,30 +27,28 @@ const Setup: React.FC = () => {
         formData.append('file', file);
         
         try {
-            // 1. UPLOAD (POST /api/upload/)
+    
             await axios.post(API_BASE_URL + 'upload/', formData, {
                  headers: { 'Content-Type': 'multipart/form-data' },
             });
             setStatusMessage("CSV Subido correctamente. Entrenando...");
             
-            // 2. TRAIN (POST /api/train/)
             const trainResponse = await apiClient.post('train/', {});
             
             setStatusMessage(`🧠 ${trainResponse.data.status}. ¡Modelo listo!`);
             
-            // Si el entrenamiento fue exitoso, navegamos al simulador.
             setTimeout(() => navigate('/simulador'), 1500); 
 
         } catch (error: any) {
             const msg = error.response?.data?.error || "Fallo de conexión. ¿Está corriendo Django?";
-            setStatusMessage(`❌ Error: ${msg}`);
+            setStatusMessage(`Error: ${msg}`);
             console.error("Error en el proceso de Setup:", error);
         }
     };
     
     return (
         <div className="setup-container">
-            <h2 className="setup-header">1.  Carga de datos y configuración inicial</h2>
+            <h2 className="setup-header">Carga de datos y configuración inicial</h2>
 
             <div className="status-box">
                 {statusMessage.includes("Cargando") && <span className="spinner">⚙️</span>}

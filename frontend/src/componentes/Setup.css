@@ -1,6 +1,3 @@
-/* src/components/Setup.css */
-
-/* --- CSS Variables --- */
 :root {
     --color-primary: #667eea;
     --color-secondary: #764ba2;
@@ -100,7 +97,7 @@
     border-radius: 2px;
 }
 
-/* --- Estado y Mensajes --- */
+
 .status-box {
     padding: 2rem 2.5rem;
     border-radius: var(--border-radius-soft);

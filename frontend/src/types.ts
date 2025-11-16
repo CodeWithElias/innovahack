@@ -1,6 +1,3 @@
-// src/types.ts
-
-// I. Estructura de la data estática del Producto (Base)
 export interface ProductAttributes {
   PRODUCTO: string;
   PRECIO_DE_VENTA: number;
@@ -10,7 +7,7 @@ export interface ProductAttributes {
   SENSIBILIDAD_PRECIO: number;
 }
 
-// II. Estructura de los INPUTS del Gerente (Variables del Escenario)
+
 export interface ScenarioInputs {
   MES: number;
   CLIMA: number;
@@ -19,10 +16,10 @@ export interface ScenarioInputs {
   CRECIMIENTO_ORGANICO: number;
 }
 
-// VI. Payload para la API de simulación
+
 export interface SimulationPayload extends ProductAttributes, ScenarioInputs {}
 
-// III. Estructura de la RESPUESTA de la Simulación (Output del modelo) - Actualizada para múltiples productos
+
 export interface SimulationResult {
   MES: number;
   PRODUCTO: string;
@@ -39,14 +36,14 @@ export interface SimulationResult {
   PRECIO_DE_COMPRA: number;
 }
 
-// IV. Estructura de la Respuesta de Recomendación
+
 export interface RecommendationResult {
   peor: string;
   conservador: string;
   mejor: string;
 }
 
-// V. Estructura del Plan de Compra (Output de /purchase-plan)
+
 export interface PurchasePlanEntry {
   MES: number;
   PRODUCTO: string;
@@ -56,7 +53,6 @@ export interface PurchasePlanEntry {
   STOCK_FINAL: number;
   AVISO: string;
   RECOMENDACION: string;
-  // Campos adicionales que pueden venir del backend
   LEAD_TIME_DIAS?: number;
   CANT_MIN_COMPRAS?: number;
   CANTIDAD_PROYECTADA_FINAL?: number;

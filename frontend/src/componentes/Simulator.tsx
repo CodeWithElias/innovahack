@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import  { useState, useMemo, useCallback } from 'react';
 import { Bar, Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend } from 'chart.js';
 import { useNavigate } from 'react-router-dom';
@@ -7,7 +7,6 @@ import './Simulator.css';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
 
-// Mock Types/Interfaces (Since we must be self-contained)
 interface RecommendationResult {
     peor: string;
     conservador: string;
@@ -51,7 +50,6 @@ interface PurchasePlanEntry {
 }
 
 
-// Productos disponibles según el modelo entrenado
 const AVAILABLE_PRODUCTS = [
     "ABERDEN_ANGUS",
     "SEMBRADORA_ELECTRICA",
@@ -63,11 +61,10 @@ const AVAILABLE_PRODUCTS = [
 ];
 
 
-// Meses del año (Noviembre a Octubre)
 const MONTHS = ['Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct'];
 const INITIAL_MONTH_NUMBERS = [11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; // 12 meses
 
-// Tipos para inputs por mes y escenario
+
 interface MonthInputs {
     CLIMA: number;
     FERIA: number;
@@ -93,7 +90,7 @@ const Simulator = () => {
         CRECIMIENTO_ORGANICO: Math.floor(Math.random() * 11), // 0 a 10
     });
 
-    // Estado para inputs por mes de cada escenario (inicializados aleatoriamente)
+
     const [scenarioInputs, setScenarioInputs] = useState<ScenarioInputs>({
         peor: INITIAL_MONTH_NUMBERS.map(() => generateRandomMonthInputs()),
         conservador: INITIAL_MONTH_NUMBERS.map(() => generateRandomMonthInputs()),
@@ -102,22 +99,19 @@ const Simulator = () => {
 
     const [selectedScenario, setSelectedScenario] = useState<ScenarioName>('conservador');
 
-    // Estado para actualización en tiempo real
+
     const [autoSimulate, setAutoSimulate] = useState<boolean>(true);
     const [simulationTimeout, setSimulationTimeout] = useState<number | null>(null);
 
-    // Estado para variables globales de compra (ya no se usan aquí, se pasan al Plan)
-    // const [purchaseVariables, setPurchaseVariables] = useState({
-    //     stock_actual: 100,
-    //     situacion_combustible: 2
-    // });
 
     const [results, setResults] = useState<Record<ScenarioName, SimulationResult[] | null>>({
         peor: null, conservador: null, mejor: null,
     });
     const [recommendations, setRecommendations] = useState<RecommendationResult | null>(null);
+    const [purchasePlan, setPurchasePlan] = useState<PurchasePlanEntry[] | null>(null);
+    const [approvedScenario, setApprovedScenario] = useState<ScenarioName | null>(null);
 
-    // Función para actualizar inputs por mes con simulación automática
+
     const updateMonthInput = useCallback((scenario: ScenarioName, monthIndex: number, field: keyof MonthInputs, value: number) => {
         console.log(`🔄 Actualizando input mensual: ${scenario} mes ${monthIndex} campo ${field} = ${value}`);
         setScenarioInputs(prev => ({
@@ -127,7 +121,7 @@ const Simulator = () => {
             )
         }));
 
-        // Si auto-simulate está activado, programar simulación automática
+
         if (autoSimulate) {
             console.log("⏰ Programando simulación automática por cambio mensual...");
             if (simulationTimeout) {
@@ -141,34 +135,11 @@ const Simulator = () => {
         }
     }, [autoSimulate, simulationTimeout]);
 
-    // Función para actualizar variables de compra (ya no se usa aquí)
-    // const updatePurchaseVariable = useCallback((field: keyof typeof purchaseVariables, value: number) => {
-    //     console.log(`🔄 Actualizando variable de compra: ${field} = ${value}`);
-    //     setPurchaseVariables(prev => ({
-    //         ...prev,
-    //         [field]: value
-    //     }));
 
-    //     // Si auto-simulate está activado, programar simulación automática
-    //     if (autoSimulate) {
-    //         console.log("⏰ Programando simulación automática por cambio en variables de compra...");
-    //         if (simulationTimeout) {
-    //             clearTimeout(simulationTimeout);
-    //         }
-    //         const timeout = setTimeout(() => {
-    //             console.log("🚀 Ejecutando simulación automática por cambio en variables de compra...");
-    //             handleSimulateAll();
-    //         }, 1000); // Esperar 1 segundo después del último cambio
-    //         setSimulationTimeout(timeout);
-    //     }
-    // }, [autoSimulate, simulationTimeout]);
-
-
-    // Función para obtener recomendaciones (usando API real o mock)
     const getRecommendations = useCallback(async (simResults: Record<ScenarioName, SimulationResult[] | null>) => {
         setStatusMessage("Analizando resultados...");
         try {
-            // Intentar usar API real de recomendaciones
+
             const payload = {
                 peor: simResults.peor,
                 conservador: simResults.conservador,
@@ -193,7 +164,7 @@ const Simulator = () => {
             setRecommendations(response.data);
             setStatusMessage("✅ Simulación completa y recomendaciones generadas.");
         } catch (error: any) {
-            // Fallback a mock si la API no está disponible
+
             console.warn("⚠️ API de recomendaciones no disponible, usando mock:", error.message);
             const totalConservador = simResults.conservador?.reduce((sum, r) => sum + r.CANTIDAD_PROYECTADA_FINAL, 0) || 0;
             const mockRecommendations = {
@@ -208,19 +179,19 @@ const Simulator = () => {
             setStatusMessage("✅ Simulación completa (usando recomendaciones mock).");
         }
     }, []);
-    // End Mock
+
 
     const getSelectedProductData = () => {
         return { PRODUCTO: selectedProduct };
     };
 
-    // Genera el payload completo para TODOS los productos y 12 meses para UN escenario
+
     const generateScenarioPayload = (scenarioName: ScenarioName): SimulationPayload[] => {
         const payload: SimulationPayload[] = [];
 
-        // Para cada producto disponible
+
         AVAILABLE_PRODUCTS.forEach(product => {
-            // Para cada mes
+
             INITIAL_MONTH_NUMBERS.forEach((month, index) => {
                 const monthInputs = scenarioInputs[scenarioName][index];
 
@@ -238,7 +209,7 @@ const Simulator = () => {
         return payload;
     };
 
-    // Función mockGetRecommendations para fallback
+
     const mockGetRecommendations = (simResults: Record<ScenarioName, SimulationResult[]>) => {
         const totalConservador = simResults.conservador?.reduce((sum, r) => sum + r.CANTIDAD_PROYECTADA_FINAL, 0) || 0;
         return {
@@ -254,7 +225,7 @@ const Simulator = () => {
         const newResults: Record<ScenarioName, SimulationResult[] | null> = { peor: null, conservador: null, mejor: null };
 
         try {
-            // Hacer 3 llamadas separadas a la API, una para cada escenario
+
             for (const name of scenarioNames) {
                 const payload = generateScenarioPayload(name);
                 console.log(`📤 Enviando datos de simulación para escenario ${name}:`, {
@@ -288,22 +259,20 @@ const Simulator = () => {
         }
     };
     
-    // --- Renderizado y Gráficos ---
 
-    // Estado para alternar entre tipos de gráfico (líneas por defecto para mejor comprensión temporal)
     const [chartType, setChartType] = useState<'bar' | 'line'>('line');
 
     const chartData = useMemo(() => {
         if (!results.conservador && !results.peor && !results.mejor) return { labels: MONTHS, datasets: [] };
 
-        // Si no hay producto seleccionado (vacío), mostrar datos agregados de todos los productos
+
         const productsToShow = selectedProduct ? [selectedProduct] : AVAILABLE_PRODUCTS;
 
         const datasets = [];
 
-        // Para cada producto a mostrar
+
         for (const product of productsToShow) {
-            // Agrupar por producto y mes para mostrar datos agregados
+
             const aggregateData = (dataArray: SimulationResult[] | null) => {
                 if (!dataArray) return [];
                 return MONTHS.map((_, index) => {
@@ -418,14 +387,13 @@ const Simulator = () => {
         }
     };
 
-    // Lógica de Navegación a Compras
+
     const handleApproveScenario = async (scenario: ScenarioName) => {
         if (results[scenario]) {
             setStatusMessage(`Generando Plan de Compra para escenario ${scenario}...`);
 
             try {
-                // Preparar payload según especificaciones del backend
-                // Las variables de stock y combustible se configurarán en la vista Plan
+
                 const purchasePayload = {
                     stock_actual: 100, // Valor por defecto, se configurará en Plan
                     situacion_combustible: 2, // Valor por defecto, se configurará en Plan
@@ -457,7 +425,6 @@ const Simulator = () => {
                     ultimoRegistro: response.data[response.data.length - 1]
                 });
 
-                // Navegar a la vista de Plan con los datos obtenidos del backend
                 navigate('/compras', {
                     state: {
                         purchasePlan: response.data,
@@ -479,10 +446,9 @@ const Simulator = () => {
         }
     };
 
-    // JSX Final - APLICACIÓN DE CLASES PARA EL DISEÑO PROFESIONAL
+
     return (
         <div className="simulator-dashboard">
-            {/* Header and Controls Row */}
             <div className="dashboard-header-bar">
                 <h2 className="dashboard-title">Simulador de Plan de Venta & Compras</h2>
                 <div className="header-controls">
@@ -512,20 +478,19 @@ const Simulator = () => {
                 </div>
             </div>
 
-            {/* Status Bar */}
+
             <p className={`status-bar ${statusMessage.includes('❌') ? 'status-error' : 'status-success'}`}>
                 <strong>Status:</strong> {statusMessage}
             </p>
 
-            {/* Main Content Grid */}
             <div className="dashboard-grid">
                 
-                {/* 1. Monthly Inputs Panel (Left) */}
+
                 <div className="panel inputs-panel">
                     <h3 className="panel-title">12 Meses: Ajuste de Variables</h3>
                     <p className="panel-subtitle">Modifica las variables exógenas para cada escenario.</p>
 
-                    {/* Nota sobre variables de compra */}
+
                     <div className="purchase-variables-note">
                         <p className="note-text">
                             💡 <strong>Nota:</strong> Las variables de Stock Actual y Situación Combustible
@@ -533,7 +498,7 @@ const Simulator = () => {
                         </p>
                     </div>
 
-                    {/* Tabs para escenarios */}
+
                     <div className="scenario-tabs">
                         {(['peor', 'conservador', 'mejor'] as const).map(scenario => (
                             <button
@@ -546,7 +511,7 @@ const Simulator = () => {
                         ))}
                     </div>
 
-                    {/* Control de auto-simulación */}
+
                     <div className="auto-simulate-control">
                         <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
                             <input
@@ -558,7 +523,7 @@ const Simulator = () => {
                         </label>
                     </div>
 
-                    {/* Tabla compacta de inputs por mes */}
+
                     <div className="inputs-table-container">
                         <table className="inputs-table">
                             <thead>
@@ -620,10 +585,10 @@ const Simulator = () => {
 
                 </div>
 
-                {/* 2. Chart and Decisions Panel (Right) */}
+
                 <div className="panel results-panel">
                     
-                    {/* Chart Card */}
+
                     <div className="chart-card">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                             <h3 className="chart-title">
@@ -670,7 +635,7 @@ const Simulator = () => {
                         </div>
                     </div>
 
-                    {/* Recommendations and Decision Section */}
+
                     <div className="summary-section">
                         {/* Recommendations */}
                         <div className="recommendations-box">
@@ -692,7 +657,7 @@ const Simulator = () => {
                             )}
                         </div>
 
-                        {/* Decision */}
+
                         <div className="decision-section">
                             <h3 className="summary-title">📈 Aprobar Plan de Compra</h3>
                             <p className="text-sm text-gray-600 mb-4">Elige el escenario para generar el Plan de Compras de 12 meses:</p>

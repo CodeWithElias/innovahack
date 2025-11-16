@@ -11,10 +11,9 @@ interface LocationState {
     scenarioName: string;
 }
 
-// Datos de apoyo
 const MONTHS = ['Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct'];
 
-// Productos disponibles según el modelo entrenado
+
 const AVAILABLE_PRODUCTS = [
     "ABERDEN_ANGUS",
     "SEMBRADORA_ELECTRICA",
@@ -30,26 +29,26 @@ const PurchasePlan: React.FC = () => {
     const location = useLocation();
     const state = location.state as LocationState;
 
-    // Extraemos los datos del plan de compra ya generado
+
     const initialPurchasePlanData = state?.purchasePlan || [];
     const scenarioName = state?.scenarioName || 'N/A';
 
-    // Estado para variables configurables del usuario
+
     const [stockActual, setStockActual] = useState<number>(100);
-    const [fuelSituation, setFuelSituation] = useState<number>(2); // 1=Normal, 2=Crítico, 3=Severo
-    const [selectedProduct, setSelectedProduct] = useState<string>(''); // Vacío = no mostrar nada
+    const [fuelSituation, setFuelSituation] = useState<number>(2); 
+    const [selectedProduct, setSelectedProduct] = useState<string>('');
     const [purchasePlanData, setPurchasePlanData] = useState<PurchasePlanEntry[]>([]);
     const [statusMessage, setStatusMessage] = useState<string>(
         !state ? "Cargue un escenario primero." : `Escenario aprobado: ${scenarioName.toUpperCase()}. Selecciona un producto para ver el plan.`
     );
     const [isRecalculating, setIsRecalculating] = useState<boolean>(false);
 
-    // Estado para mostrar datos iniciales antes del primer recálculo
+
     const [showInitialData, setShowInitialData] = useState<boolean>(false);
 
-    // Función para recalcular el plan automáticamente
+
     const recalculatePlan = useCallback(async () => {
-        if (!selectedProduct) return; // No recalcular si no hay producto seleccionado
+        if (!selectedProduct) return; 
 
         setIsRecalculating(true);
         setStatusMessage("🔄 Recalculando plan de compra...");
@@ -57,8 +56,6 @@ const PurchasePlan: React.FC = () => {
         try {
             console.log(`📤 Recalculando plan para producto ${selectedProduct} con stock_actual=${stockActual}, situacion_combustible=${fuelSituation}`);
 
-            // Preparar payload con las nuevas variables
-            // Filtrar por producto seleccionado
             const filteredData = initialPurchasePlanData.filter(item => item.PRODUCTO === selectedProduct);
 
             const recalculatePayload = {
@@ -89,36 +86,34 @@ const PurchasePlan: React.FC = () => {
             setShowInitialData(false); // Ya no mostrar datos iniciales después del primer recálculo
 
         } catch (error: any) {
-            console.error("❌ Error al recalcular:", error);
-            setStatusMessage(`❌ Error al recalcular: ${error.response?.data?.error || error.message}`);
+            console.error("Error al recalcular:", error);
+            setStatusMessage(`Error al recalcular: ${error.response?.data?.error || error.message}`);
         } finally {
             setIsRecalculating(false);
         }
     }, [stockActual, fuelSituation, initialPurchasePlanData, selectedProduct]);
 
-    // Efecto para recalcular automáticamente cuando cambian las variables o el producto seleccionado
     useEffect(() => {
         if (initialPurchasePlanData.length > 0 && selectedProduct && !showInitialData) {
             const timeoutId = setTimeout(() => {
                 recalculatePlan();
-            }, 1000); // Esperar 1 segundo después del último cambio
+            }, 1000);
 
             return () => clearTimeout(timeoutId);
         }
     }, [stockActual, fuelSituation, selectedProduct, recalculatePlan, initialPurchasePlanData.length, showInitialData]);
 
-    // Efecto para filtrar datos cuando cambia el producto seleccionado
+
     useEffect(() => {
-        // No necesitamos recalcular la API, solo filtrar los datos existentes
-        // El filtro se aplica en el render
+
     }, [selectedProduct]);
     
-    // Si no hay datos, pedimos al usuario que vuelva
+
     if (!state) {
         return <div style={{padding: '20px'}}><p>No se ha aprobado ningún escenario. Vuelve a <a href="/simulador">Simulación</a> para elegir un escenario.</p></div>;
     }
 
-    // Debug: Mostrar datos en consola
+
     console.log('📋 Datos del Plan de Compra en Plan.tsx:', {
         state: state,
         purchasePlanData: purchasePlanData,
@@ -148,10 +143,10 @@ const PurchasePlan: React.FC = () => {
                                 const newProduct = e.target.value;
                                 setSelectedProduct(newProduct);
                                 if (newProduct) {
-                                    // Limpiar datos anteriores y recalcular para el nuevo producto
+
                                     setPurchasePlanData([]);
                                     setStatusMessage(`Seleccionado: ${newProduct}. Recalculando plan...`);
-                                    // El useEffect se encargará de recalcular
+
                                 } else {
                                     setPurchasePlanData([]);
                                     setStatusMessage(`Escenario aprobado: ${scenarioName.toUpperCase()}. Selecciona un producto para ver el plan.`);
@@ -203,7 +198,7 @@ const PurchasePlan: React.FC = () => {
                 )}
             </div>
 
-            {/* Debug: Mostrar datos en pantalla temporalmente */}
+
             {showInitialData && (
                 <div style={{ marginBottom: '20px', padding: '20px', backgroundColor: '#fff3cd', border: '1px solid #ffeaa7', borderRadius: '8px', borderLeft: '4px solid #f39c12' }}>
                     <h4 style={{ color: '#8b4513', margin: '0 0 10px 0' }}>⚠️ Configuración Inicial</h4>
@@ -220,12 +215,12 @@ const PurchasePlan: React.FC = () => {
                 </div>
             )}
 
-            {/* Tabla de Resultados de Compra */}
+
             {(purchasePlanData && purchasePlanData.length > 0) && (
                 <div className="table-container">
                     <h3>📋 Detalle del Plan de Compra ({purchasePlanData.filter(item => !selectedProduct || item.PRODUCTO === selectedProduct).length} meses)</h3>
 
-                    {/* Resumen Ejecutivo */}
+
                     <div style={{ marginBottom: '2rem', padding: '1.5rem', backgroundColor: '#f8f9fa', borderRadius: '12px', border: '1px solid #dee2e6' }}>
                         <h4 style={{ margin: '0 0 1rem 0', color: '#495057', fontSize: '1.1em' }}>📊 Resumen Ejecutivo</h4>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1.5rem' }}>
