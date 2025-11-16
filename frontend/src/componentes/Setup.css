@@ -1,0 +1,94 @@
+/* src/components/Setup.css */
+
+/* --- Estilos Generales y Layout --- */
+.setup-container {
+    max-width: 650px;
+    margin: 40px auto;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    font-family: 'Arial', sans-serif;
+}
+
+.setup-header {
+    color: #005f73; /* Azul Oscuro (Profesional) */
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* --- Estado y Mensajes --- */
+.status-box {
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 0.95em;
+    font-weight: bold;
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-success {
+    background-color: #e9f7ef; /* Verde claro */
+    color: #007335;
+    border: 1px solid #c8e6c9;
+}
+
+.status-error {
+    background-color: #fcebeb; /* Rojo claro */
+    color: #cc0000;
+    border: 1px solid #f09595;
+}
+
+/* --- Controles de Archivo y Botones --- */
+.controls-group {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-top: 25px;
+    padding: 15px;
+    border: 1px dashed #cccccc;
+    border-radius: 8px;
+}
+
+/* Estilo del input de archivo */
+.input-file {
+    font-size: 0.9em;
+    color: #333;
+    padding: 5px;
+    cursor: pointer;
+}
+
+/* Estilo del botón */
+.btn-train {
+    padding: 12px 25px;
+    background-color: #007bff; /* Azul primario */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-train:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+.btn-train:disabled {
+    background-color: #cccccc; /* Gris cuando está deshabilitado */
+    cursor: not-allowed;
+}
+
+/* --- Utilerías --- */
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

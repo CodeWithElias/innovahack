@@ -1,0 +1,214 @@
+/* src/components/Plan.css */
+
+/* --- Contenedor Principal --- */
+.plan-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    font-family: 'Arial', sans-serif;
+}
+
+.plan-header {
+    color: #d9534f;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* --- Status --- */
+.status-info {
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.status-success {
+    color: #28a745;
+}
+
+.status-error {
+    color: #d9534f;
+}
+
+/* --- Inputs Section --- */
+.inputs-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #dee2e6;
+}
+
+/* --- Variables Grid --- */
+.variables-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+/* --- Recalculate Status --- */
+.recalculate-status {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: #e3f2fd;
+    border: 1px solid #2196f3;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.status-text {
+    margin: 0;
+    color: #1976d2;
+    font-weight: 500;
+}
+
+.section-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.section-subtitle {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.input-group label {
+    font-weight: bold;
+    font-size: 0.9em;
+    color: #495057;
+}
+
+.config-input, .config-select {
+    padding: 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    width: 100%;
+}
+
+.config-input:focus, .config-select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.config-input:disabled, .config-select:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+/* --- Recalculate Section --- */
+.recalculate-section {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #dee2e6;
+}
+
+.btn-recalculate {
+    padding: 0.75rem 1.5rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    width: 100%;
+}
+
+.btn-recalculate:hover:not(:disabled) {
+    background-color: #218838;
+}
+
+.btn-recalculate:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* --- Tabla de Plan de Compra --- */
+.table-container {
+    margin-top: 20px;
+}
+
+.table-container h3 {
+    color: #005f73;
+    margin-bottom: 15px;
+}
+
+.purchase-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.purchase-table th,
+.purchase-table td {
+    padding: 12px 8px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.purchase-table th {
+    background-color: #f7f7f7;
+    font-weight: bold;
+    color: #333;
+}
+
+.purchase-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.purchase-table tbody tr:hover {
+    background-color: #e6f7ff;
+}
+
+.purchase-table .highlight-alert {
+    background-color: #ffcccc !important;
+}
+
+.purchase-table .highlight-positive {
+    color: #28a745;
+    font-weight: bold;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    .inputs-section {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+
+    .input-group input,
+    .input-group select {
+        width: 100%;
+    }
+
+    .purchase-table {
+        font-size: 0.9em;
+    }
+
+    .purchase-table th,
+    .purchase-table td {
+        padding: 8px 4px;
+    }
+}
